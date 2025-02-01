@@ -37,7 +37,7 @@ CREATE TABLE FlightAttendant (
 -- 3. Creating the 'Pilot' table which is a subtype of 'Person'.
 -- flightHours may be null if a pilot has not flown yet.
 -- licenseNum cannot be null as this person is a pilot.
--- cascade is used so that if a person is deleted, their pilot should also be deleted. 
+-- CASCADE is used so that if a person is deleted, their pilot should also be deleted. 
 -- =======================
 CREATE TABLE Pilot (
     personID INTEGER NOT NULL,
