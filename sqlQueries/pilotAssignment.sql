@@ -11,8 +11,8 @@ NATURAL JOIN CrewPilot
 NATURAL JOIN Flight
 INNER JOIN Airport AS a1 ON fromAirportID = a1.airportID
 INNER JOIN Airport AS a2 ON toAirportID = a2.airportID
-WHERE  firstName || ' ' || lastName = 'Marco Rossi'
-ORDER  BY date, depTime;
+WHERE firstName || ' ' || lastName = 'Marco Rossi'
+ORDER BY date, depTime;
 
 
 -- Assign pilot 'Marco Rossi' to flight ID 15

@@ -18,13 +18,15 @@ CREATE TABLE Person (
     phone VARCHAR(20) NOT NULL,
     salary NUMERIC NOT NULL,
     PRIMARY KEY (personID),
-    FOREIGN KEY (cityID) REFERENCES City(cityID) ON DELETE RESTRICT
+    FOREIGN KEY (cityID) REFERENCES City(cityID) ON DELETE RESTRICT,
+    UNIQUE (email),
+    UNIQUE (phone)
 );
 
 -- =======================
 -- 2. Creating the 'FlightAttendant' table which is a subtype of 'Person'.
 -- languageSpoken was set to not null because every flight attendants speaks at least one language.
--- cascade is used so that if a person is deleted, their flight attendant should also be deleted.
+-- CASCADE is used so that if a person is deleted, their flight attendant should also be deleted.
 -- =======================
 CREATE TABLE FlightAttendant (
     personID INTEGER NOT NULL,
@@ -44,7 +46,8 @@ CREATE TABLE Pilot (
     licenseNum VARCHAR(50) NOT NULL,
     flightHours INTEGER,
     PRIMARY KEY (personID),
-    FOREIGN KEY (personID) REFERENCES Person(personID) ON DELETE CASCADE
+    FOREIGN KEY (personID) REFERENCES Person(personID) ON DELETE CASCADE,
+    UNIQUE (licenseNum)
 );
 
 -- =======================
@@ -106,7 +109,8 @@ CREATE TABLE Airplane (
     model VARCHAR(50) NOT NULL,
     capacity INTEGER NOT NULL,
     registrationNum VARCHAR(50) NOT NULL,
-    PRIMARY KEY (airplaneID)        
+    PRIMARY KEY (airplaneID),
+    UNIQUE (registrationNum)       
 );
 
 -- =======================
@@ -135,7 +139,7 @@ CREATE TABLE Flight (
     toAirportID INTEGER NOT NULL,
     airplaneID INTEGER NOT NULL,
     crewID INTEGER NOT NULL,
-    status VARCHAR(20) CHECK(Status IN ('On time', 'Scheduled', 'Delayed', 'Cancelled', 'Departed', 'Arrived')),
+    status VARCHAR(20) CHECK(status IN ('On time', 'Scheduled', 'Delayed', 'Cancelled', 'Departed', 'Arrived')),
     PRIMARY KEY (flightID),
     FOREIGN KEY (fromAirportID) REFERENCES Airport(airportID) ON DELETE RESTRICT,
     FOREIGN KEY (toAirportID) REFERENCES Airport(airportID) ON DELETE RESTRICT,
