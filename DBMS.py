@@ -94,8 +94,8 @@ class DBMS():
         origin = str(input("Enter flight origin (or leave it blank and press enter): "))
         destination = str(input("Enter flight destination (or leave it blank and press enter): "))
         status = str(input("Enter flight status (or leave it blank and press enter): "))
-        from_date = str(input("Enter the start date of the flight/s you want to search (or leave it blank and press enter): "))
-        to_date = str(input("Enter the end date of the flight/s you want to search (or leave it blank and press enter): "))
+        from_date = str(input("Enter the start date (YYYY-MM-DD) of the flight/s you want to search (or leave it blank and press enter): "))
+        to_date = str(input("Enter the end date (YYYY-MM-DD) of the flight/s you want to search (or leave it blank and press enter): "))
 
         # base query to which we will append conditions
         query = f"""
@@ -141,9 +141,9 @@ class DBMS():
             for row in results:
                 flightID, date, depTime, arrTime, fromAirport, toAirport, status = row
                 # handle None values
-                depTime = depTime if depTime else "N/A"
-                arrTime = arrTime if arrTime else "N/A"
-                status = status if status else "N/A"
+                depTime = depTime if depTime else "NA"
+                arrTime = arrTime if arrTime else "NA"
+                status = status if status else "NA"
                 print(f"{flightID:<9} {date:<12} {depTime:<10} {arrTime:<10} {fromAirport:<20} {toAirport:<20} {status:<12}")
 
         except Exception as e:
@@ -393,60 +393,60 @@ class DBMS():
 #end-def
 
     
-    def assign_pilot_to_flight(self):
-        """
-            This function allows to assign a given pilot to a flight by specifying the
-            flight ID.
-        """
+#     def assign_pilot_to_flight(self):
+#         """
+#             This function allows to assign a given pilot to a flight by specifying the
+#             flight ID.
+#         """
 
-        # user input
-        flightID = int(input("Enter flight ID: "))
-        pilotFirstName = str(input("Enter pilot first name: "))
-        pilotLastName = str(input("Enter pilot last name: "))
+#         # user input
+#         flightID = int(input("Enter flight ID: "))
+#         pilotFirstName = str(input("Enter pilot first name: "))
+#         pilotLastName = str(input("Enter pilot last name: "))
         
-        # ensure connection is active
-        self.get_connection()
+#         # ensure connection is active
+#         self.get_connection()
 
-        try:
-            # Check if the pilot exists
-            self.cur.execute("SELECT personID FROM (Pilot NATURAL JOIN Person) WHERE firstName = ? AND lastName = ?", (pilotFirstName, pilotLastName))
-            person_row = self.cur.fetchone()
+#         try:
+#             # Check if the pilot exists
+#             self.cur.execute("SELECT personID FROM (Pilot NATURAL JOIN Person) WHERE firstName = ? AND lastName = ?", (pilotFirstName, pilotLastName))
+#             person_row = self.cur.fetchone()
 
-            # handle invalid pilot name
-            if not person_row:
-                print(f"Error: pilot {pilotFirstName + " " + pilotLastName} does not exist.")
-                # flow control
-                return
+#             # handle invalid pilot name
+#             if not person_row:
+#                 print(f"Error: pilot {pilotFirstName + " " + pilotLastName} does not exist.")
+#                 # flow control
+#                 return
 
-            # get the person id
-            pilot_id = person_row[0]
+#             # get the person id
+#             pilot_id = person_row[0]
 
-            # check if the flight exists
-            self.cur.execute("SELECT crewID FROM Flight WHERE flightID = ?", (flightID,))
-            flight_row = self.cur.fetchone()
+#             # check if the flight exists
+#             self.cur.execute("SELECT crewID FROM Flight WHERE flightID = ?", (flightID,))
+#             flight_row = self.cur.fetchone()
 
-            # handle invalid flight ID
-            if not flight_row:
-                print(f"Error: Flight with ID {flightID} does not exist.")
-                # flow control
-                return
+#             # handle invalid flight ID
+#             if not flight_row:
+#                 print(f"Error: Flight with ID {flightID} does not exist.")
+#                 # flow control
+#                 return
 
-            # get the crew ID assigned to this flight as it is the only column selected
-            crew_id = flight_row[0]  
+#             # get the crew ID assigned to this flight as it is the only column selected
+#             crew_id = flight_row[0]  
 
-            # insert the pilot into the CrewPilot table
-            self.cur.execute("INSERT INTO CrewPilot (crewID, personID, role) VALUES (?, ?, 'Pilot')", (crew_id, pilot_id))
-            self.conn.commit()
+#             # insert the pilot into the CrewPilot table
+#             self.cur.execute("INSERT INTO CrewPilot (crewID, personID, role) VALUES (?, ?, 'Pilot')", (crew_id, pilot_id))
+#             self.conn.commit()
 
-            # feedback to user
-            print(f"Pilot {pilotFirstName + " " + pilotLastName} successfully assigned to flight {flightID} as 'Pilot'.")
+#             # feedback to user
+#             print(f"Pilot {pilotFirstName + " " + pilotLastName} successfully assigned to flight {flightID} as 'Pilot'.")
             
-        except Exception as e:
-            print("Error: pilot could not be assigned to flight: ", e)
+#         except Exception as e:
+#             print("Error: pilot could not be assigned to flight: ", e)
 
-        finally:
-            self.close_connection()
-#end-def
+#         finally:
+#             self.close_connection()
+# #end-def
 
     
     def view_all_airports(self):
@@ -653,8 +653,7 @@ class DBMS():
         """
             This function allows to add a new flight to the database.
             Flight ID is generated automatically by getting the highest current id and add 1 to it.
-            Crew ID is assigned automatically by using the previous function and finding a crew that
-            is free on that day.
+            It ensures that a unique crew is created for the new flight.
             Airplane ID is assigned automatically by using the previous function and finding an 
             airplane that is free on that day.
         """
@@ -672,10 +671,28 @@ class DBMS():
             # find the id of departure airport
             self.cur.execute("SELECT airportID FROM Airport WHERE name = ?", (fromAirport,))
             deptAirportID_ = self.cur.fetchone()
+
+            # handle invalid departure airport
+            if not deptAirportID_:
+                print(f"Error: departure airport '{fromAirport}' not found.")
+                # flow control
+                return
+            
+            # get departure airport id
             deptAirportID = deptAirportID_[0]
+
             # find id of the arrival airport
             self.cur.execute("SELECT airportID FROM Airport WHERE name = ?", (toAirport,))
             arrAirportID_ = self.cur.fetchone()
+
+            # handle invalid arrival airport
+            if not arrAirportID_:
+                print(f"Error: departure airport '{fromAirport}' not found.")
+                # flow control
+                return
+            
+
+            # get arrival airport di
             arrAirportID = arrAirportID_[0]
 
             # it finds the current top flightID and creates the new one by adding one to the previous one
@@ -683,22 +700,23 @@ class DBMS():
             top_flight_id_ = self.cur.fetchone()
             newFlightID = int(top_flight_id_[0]) + 1 # casting flightID to integer to make sure it is integer
 
+            # generate the new crewID
+            self.cur.execute("SELECT MAX(crewID) FROM Crew")
+            top_crew_id = self.cur.fetchone()[0] or 0
+            newCrewID = int(top_crew_id) + 1
+            # add the new crew id to the table
+            self.cur.execute("INSERT INTO Crew (crewID) VALUES (?)", (newCrewID,))
+
             # find an available airplane for that date
             available_airplanes = self.get_available_airplanes(flight_date)
             # get the first available airplane
             available_airplane_ID = available_airplanes[0][0]
 
-            # find an available crew
-            available_crews = self.find_available_crew(flight_date)
-            # get the first available crew
-            available_crew_ID = available_crews[0][0]
-
-
             # adding new flight to database
             query = """INSERT INTO Flight (flightID, date, depTime, arrTime, fromAirportID, toAirportID, airplaneID, crewID, status)
                        VALUES (?, ?, ?, NULL, ?, ?, ?, ?, NULL)
                     """
-            self.cur.execute(query, (newFlightID,flight_date,deptTime,deptAirportID,arrAirportID,available_airplane_ID,available_crew_ID))
+            self.cur.execute(query, (newFlightID,flight_date,deptTime,deptAirportID,arrAirportID,available_airplane_ID,newCrewID))
             self.conn.commit()
 
             # feedback to user
