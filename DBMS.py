@@ -393,62 +393,6 @@ class DBMS():
 #end-def
 
     
-#     def assign_pilot_to_flight(self):
-#         """
-#             This function allows to assign a given pilot to a flight by specifying the
-#             flight ID.
-#         """
-
-#         # user input
-#         flightID = int(input("Enter flight ID: "))
-#         pilotFirstName = str(input("Enter pilot first name: "))
-#         pilotLastName = str(input("Enter pilot last name: "))
-        
-#         # ensure connection is active
-#         self.get_connection()
-
-#         try:
-#             # Check if the pilot exists
-#             self.cur.execute("SELECT personID FROM (Pilot NATURAL JOIN Person) WHERE firstName = ? AND lastName = ?", (pilotFirstName, pilotLastName))
-#             person_row = self.cur.fetchone()
-
-#             # handle invalid pilot name
-#             if not person_row:
-#                 print(f"Error: pilot {pilotFirstName + " " + pilotLastName} does not exist.")
-#                 # flow control
-#                 return
-
-#             # get the person id
-#             pilot_id = person_row[0]
-
-#             # check if the flight exists
-#             self.cur.execute("SELECT crewID FROM Flight WHERE flightID = ?", (flightID,))
-#             flight_row = self.cur.fetchone()
-
-#             # handle invalid flight ID
-#             if not flight_row:
-#                 print(f"Error: Flight with ID {flightID} does not exist.")
-#                 # flow control
-#                 return
-
-#             # get the crew ID assigned to this flight as it is the only column selected
-#             crew_id = flight_row[0]  
-
-#             # insert the pilot into the CrewPilot table
-#             self.cur.execute("INSERT INTO CrewPilot (crewID, personID, role) VALUES (?, ?, 'Pilot')", (crew_id, pilot_id))
-#             self.conn.commit()
-
-#             # feedback to user
-#             print(f"Pilot {pilotFirstName + " " + pilotLastName} successfully assigned to flight {flightID} as 'Pilot'.")
-            
-#         except Exception as e:
-#             print("Error: pilot could not be assigned to flight: ", e)
-
-#         finally:
-#             self.close_connection()
-# #end-def
-
-    
     def view_all_airports(self):
         """
             This function allows to visualise on the terminal all the 
