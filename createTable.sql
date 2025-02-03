@@ -5,6 +5,8 @@
 -- 1. Creating the 'Person' table.
 -- phone is represented by a VARCHAR because it may include a + at the start and spaces.
 -- salary was set to NUMERIC which can be represented as both an integer and a real data type (https://www.sqlite.org/datatype3.html).
+-- email and phone were set to unique as it was assumed that two people cannot have the same contact information.
+-- ON DELETE RESTRICT is used to prevent deleting the person after deleting a city from the city table.
 -- =======================
 CREATE TABLE Person (
     personID INTEGER NOT NULL,
@@ -30,7 +32,7 @@ CREATE TABLE Person (
 -- =======================
 CREATE TABLE FlightAttendant (
     personID INTEGER NOT NULL,
-    languageSpoken VARCHAR(100) NOT NULL,
+    languageSpoken VARCHAR(50) NOT NULL,
     PRIMARY KEY (personID, languageSpoken),
     FOREIGN KEY (personID) REFERENCES Person(personID) ON DELETE CASCADE
 );
@@ -129,6 +131,7 @@ CREATE TABLE City (
 -- status needs to be a value in the provided list or null, as it was assumed that uncertainty on certain 
 -- flights may lead to null values for status. However, values outside the list are not allowed.
 -- arrTime can be null as it may not be defined yet, especially in case of delay.
+-- UNIQUE is used to ensure that crewID is unique in line with the one-to-one relationship defined.
 -- =======================
 CREATE TABLE Flight (
     flightID INTEGER NOT NULL,

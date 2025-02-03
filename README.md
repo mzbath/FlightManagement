@@ -1,6 +1,15 @@
 # FlightManager
 A Flight Management database-driven application developed using SQL and Python for Database and Cloud module at the MSc Computer Science, University of Bath (UK).
 
+## Repository structure
+This repo contains:
+- A database ```airline.db```.
+- The SQL queries to create the tables and add data: ```createTable.sql```, ```insertData.sql```.
+- A python class to operate as database management system (DBMS) allowing interactions with the database: ```DBMS.py```.
+- A python file to start the application: ```main.py```.
+- A folder that includes all the SQL queries as defined in the assignment: ```sqlQueries/```.
+
+
 ## 1. Database setup in SQLite
 The ```airline.db``` database is created and populated with the tables presented in ```createTable.sql``` file and these tables
 are populated using the data included in ```insertData.sql``` file. 
@@ -12,7 +21,7 @@ recreated, and populated with the data.
 
 ## 2. SQL queries and database interaction
 The SQL queries used for flight retrival, schedule modification, pilot assignment, destination management, and data summary
-are stored in ```/sqlQueries``` folder as separete files.
+are stored in ```sqlQueries/``` folder as separete files.
 
 ## 3. Application development in python (using SQLite3)
 A class ```DBMS``` was created to act as a database management system. This class contains all the necessary methods/functions
